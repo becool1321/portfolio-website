@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bigul Niraula(0xbec000l)</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green: #00ff88;
+    --green-dim: #00cc6a;
+    --green-glow: rgba(0,255,136,0.12);
+    --bg: #0a0e0c;
+    --bg2: #0f1410;
+    --bg3: #141a15;
+    --surface: #1a211b;
+    --border: rgba(0,255,136,0.13);
+    --border-bright: rgba(0,255,136,0.38);
+    --text: #c8d5c9;
+    --text-dim: #7a9b7e;
+    --text-faint: #3d5440;
+    --red: #ff4757;
+    --amber: #ffa502;
+    --cyan: #00d2ff;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Space Grotes k', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.025) 2px, rgba(0,0,0,0.025) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 2.5rem; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(10,14,12,0.94);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+  }
+  .nav-logo { font-family: var(--mono); font-size: 14px; color: var(--green); letter-spacing: 0.04em; }
+  .nav-logo .dim { color: var(--text-dim); }
+  .nav-links { display: flex; }
+  .nav-links a {
+    font-family: var(--mono); font-size: 12px;
+    color: var(--text-dim); text-decoration: none;
+    padding: 7px 14px;
+    border: 1px solid transparent;
+    transition: all 0.18s;
+    letter-spacing: 0.04em;
+  }
+  .nav-links a:hover { color: var(--green); border-color: var(--border); background: var(--green-glow); }
+  .nav-links a.active { color: var(--green); }
+  .nav-status { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+  .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.35;transform:scale(0.8);} }
+
+  section { padding: 5.5rem 2.5rem; max-width: 940px; margin: 0 auto; }
+  #home { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding-top: 5rem; }
+  hr.div { border: none; border-top: 1px solid var(--border); max-width: 940px; margin: 0 auto; }
+
+  .sec-header { display: flex; align-items: center; gap: 12px; margin-bottom: 2.5rem; }
+  .sec-num { font-family: var(--mono); font-size: 12px; color: var(--green); opacity: 0.65; }
+  .sec-title { font-family: var(--mono); font-size: 19px; font-weight: 500; color: var(--green); }
+  .sec-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* TERMINAL */
+  .terminal { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 2.5rem; }
+  .t-bar { background: var(--surface); padding: 8px 14px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid var(--border); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; opacity:.7; }
+  .dot.y { background: #ffbe2e; opacity:.7; }
+  .dot.g { background: var(--green); opacity:.7; }
+  .t-bar-title { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-left: 8px; }
+  .t-body { padding: 1.25rem 1.5rem; font-family: var(--mono); font-size: 13px; line-height: 2; }
+  .t-prompt { color: var(--green); }
+  .t-path { color: var(--cyan); }
+  .t-key { color: var(--green); }
+  .t-val { color: var(--amber); }
+  .t-comment { color: var(--text-faint); }
+  .t-dim { color: var(--text-dim); }
+  .cursor { display: inline-block; width: 8px; height: 14px; background: var(--green); animation: blink 1.1s step-end infinite; vertical-align: text-bottom; }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+  /* HERO */
+  .hero-name { font-family: var(--mono); font-size: clamp(2rem,5vw,3.4rem); font-weight: 700; color: #fff; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 0.75rem; }
+  .hero-name .acc { color: var(--green); }
+  .hero-role { font-family: var(--mono); font-size: 1rem; color: var(--text-dim); margin-bottom: 1.5rem; }
+  .hero-role .sep { color: var(--text-faint); margin: 0 8px; }
+  .hero-bio { font-size: 15px; color: var(--text); max-width: 560px; line-height: 1.85; margin-bottom: 2rem; }
+  .btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { font-family: var(--mono); font-size: 12px; padding: 10px 22px; border-radius: 3px; text-decoration: none; letter-spacing: 0.05em; transition: all 0.18s; cursor: pointer; border: none; display: inline-block; }
+  .btn-primary { background: var(--green); color: #0a0e0c; font-weight: 700; }
+  .btn-primary:hover { background: #fff; }
+  .btn-outline { background: transparent; color: var(--green); border: 1px solid var(--border-bright); }
+  .btn-outline:hover { background: var(--green-glow); border-color: var(--green); }
+
+  .stats-row { display: flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 3rem; }
+  .stat { flex: 1; padding: 1.25rem 1.5rem; border-right: 1px solid var(--border); }
+  .stat:last-child { border-right: none; }
+  .stat-n { font-family: var(--mono); font-size: 1.8rem; font-weight: 700; color: var(--green); }
+  .stat-l { font-family: var(--mono); font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+  /* ABOUT */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: 1.35rem 1.5rem; }
+  .card h4 { font-family: var(--mono); font-size: 12px; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+  .stag { display: inline-block; font-family: var(--mono); font-size: 11px; padding: 3px 10px; border: 1px solid var(--border); border-radius: 2px; color: var(--text-dim); margin: 3px; transition: all 0.15s; }
+  .stag:hover, .stag.hot { border-color: rgba(0,255,136,0.3); color: var(--green-dim); }
+  .cert { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 12px; }
+  .cert:last-child { border-bottom: none; }
+  .cdot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .cname { color: var(--text); }
+  .cbadge { margin-left: auto; font-size: 10px; padding: 2px 8px; border-radius: 2px; letter-spacing: 0.04em; }
+  .cbadge.done { background: rgba(0,255,136,0.08); color: var(--green); border: 1px solid rgba(0,255,136,0.2); }
+  .cbadge.prog { background: rgba(255,165,2,0.08); color: var(--amber); border: 1px solid rgba(255,165,2,0.2); }
+  .span2 { grid-column: span 2; }
+
+  /* PROJECTS */
+  .proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .pcard { background: var(--bg2); padding: 1.5rem; transition: background 0.18s; }
+  .pcard:hover { background: var(--bg3); }
+  .pcard.full { grid-column: span 2; }
+  .ptop { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.75rem; }
+  .picon { font-family: var(--mono); font-size: 11px; color: var(--green); background: var(--green-glow); border: 1px solid var(--border); padding: 3px 9px; border-radius: 2px; }
+  .ptitle-link {
+    font-family: var(--mono); font-size: 14px; font-weight: 500; color: #fff;
+    text-decoration: none; display: inline-block; margin-bottom: 0.5rem;
+    transition: color 0.18s;
+    position: relative;
+  }
+  .ptitle-link::after {
+    content: ' →';
+    color: var(--green);
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+  .ptitle-link:hover { color: var(--green); }
+  .ptitle-link:hover::after { opacity: 1; }
+  .pdesc { font-size: 13px; color: var(--text-dim); line-height: 1.75; margin-bottom: 1rem; }
+  .ptags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ptag { font-family: var(--mono); font-size: 10px; color: var(--text-faint); border: 1px solid var(--text-faint); padding: 1px 7px; border-radius: 2px; }
+
+  /* WRITEUPS */
+  .wu-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .wu { background: var(--bg2); padding: 1.25rem 1.5rem; display: flex; align-items: flex-start; gap: 1rem; transition: background 0.18s; }
+  .wu:hover { background: var(--surface); }
+  .diff { font-family: var(--mono); font-size: 10px; padding: 3px 9px; border-radius: 2px; flex-shrink: 0; margin-top: 3px; letter-spacing: 0.05em; }
+  .diff.easy { background: rgba(0,255,136,0.09); color: var(--green); border: 1px solid rgba(0,255,136,0.22); }
+  .diff.med { background: rgba(255,165,2,0.09); color: var(--amber); border: 1px solid rgba(255,165,2,0.22); }
+  .diff.hard { background: rgba(255,71,87,0.09); color: var(--red); border: 1px solid rgba(255,71,87,0.22); }
+  .wu-body { flex: 1; }
+  .wu-meta { font-family: var(--mono); font-size: 11px; color: var(--text-faint); margin-bottom: 3px; }
+  .wu-title-link {
+    font-family: var(--mono); font-size: 14px; color: var(--text);
+    font-weight: 500; text-decoration: none; display: inline-block;
+    transition: color 0.18s;
+  }
+  .wu-title-link::after {
+    content: ' ›';
+    color: var(--green);
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+  .wu-title-link:hover { color: var(--green); }
+  .wu-title-link:hover::after { opacity: 1; }
+  .wu-desc { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+  .wu-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .wu-tag { font-family: var(--mono); font-size: 10px; color: var(--cyan); border: 1px solid rgba(0,210,255,0.2); padding: 1px 7px; border-radius: 2px; }
+  .wu-coming { background: var(--bg2); padding: 1rem 1.5rem; font-family: var(--mono); font-size: 12px; color: var(--text-faint); }
+  .wu-coming span { color: var(--green); margin-right: 6px; }
+
+  /* BLOG */
+  .blog-empty { font-family: var(--mono); font-size: 13px; color: var(--text-faint); padding: 2rem; background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; }
+  .blog-empty span { color: var(--green); }
+  .blog-empty p + p { margin-top: 0.5rem; }
+
+  /* CONTACT */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 2rem; }
+  .clinks { display: flex; flex-direction: column; gap: 0.85rem; }
+  .clink { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; text-decoration: none; transition: border-color 0.18s; }
+  .clink:hover { border-color: var(--border-bright); }
+  .clink-icon { font-family: var(--mono); font-size: 11px; color: var(--green); width: 60px; flex-shrink: 0; }
+  .clink-txt { font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
+  .clink:hover .clink-txt { color: var(--text); }
+  .cnote { padding: 1rem; background: rgba(0,255,136,0.04); border: 1px solid rgba(0,255,136,0.13); border-radius: 4px; font-family: var(--mono); font-size: 12px; color: var(--text-dim); line-height: 1.8; }
+  .cform { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: 1.5rem; }
+  .frow { margin-bottom: 1rem; }
+  .frow label { display: block; font-family: var(--mono); font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .frow input, .frow textarea, .frow select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 3px; color: var(--text);
+    font-family: var(--mono); font-size: 13px; padding: 10px 12px;
+    outline: none; transition: border-color 0.18s;
+  }
+  .frow input:focus, .frow textarea:focus, .frow select:focus { border-color: var(--border-bright); }
+  .frow textarea { resize: vertical; min-height: 100px; line-height: 1.65; }
+  .frow select option { background: var(--bg2); }
+  .fsub {
+    width: 100%; padding: 11px;
+    background: var(--green); color: #0a0e0c;
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.08em; border: none; border-radius: 3px;
+    cursor: pointer; transition: background 0.18s;
+  }
+  .fsub:hover { background: #fff; }
+  .fsub:disabled { opacity: 0.6; cursor: not-allowed; }
+  .fsuccess { display: none; text-align: center; padding: 2rem; font-family: var(--mono); color: var(--green); }
+  .fsuccess .big { font-size: 2rem; margin-bottom: 0.5rem; }
+  .ferr { font-family: var(--mono); font-size: 12px; color: var(--red); margin-bottom: 0.75rem; min-height: 0; }
+
+  footer { border-top: 1px solid var(--border); padding: 2rem 2.5rem; max-width: 940px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+  .ft { font-family: var(--mono); font-size: 12px; color: var(--text-faint); }
+  .ft span { color: var(--green); }
+
+  @media(max-width:700px){
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+    section { padding: 3.5rem 1rem; }
+    .about-grid, .proj-grid, .contact-grid { grid-template-columns: 1fr; }
+    .pcard.full { grid-column: span 1; }
+    .stats-row { flex-direction: column; }
+    .stat { border-right: none; border-bottom: 1px solid var(--border); }
+    .span2 { grid-column: span 1; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">[<span class="dim">0xbec000l@</span>portfolio<span class="dim">]~$</span></div>
+  <div class="nav-links">
+    <a href="#home" class="active">~/home</a>
+    <a href="#about">~/about</a>
+    <a href="#projects">~/projects</a>
+    <a href="#writeups">~/writeups</a>
+    <a href="#blog">~/blog</a>
+    <a href="#contact">~/contact</a>
+  </div>
+  <div class="nav-status"><div class="pulse"></div>online</div>
+</nav>
+
+<!-- HOME -->
+<section id="home">
+  <div class="terminal">
+    <div class="t-bar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="t-bar-title">bash — ~/portfolio/init.sh</span>
+    </div>
+    <div class="t-body">
+      <div><span class="t-prompt">root@kali</span><span class="t-path">:~$</span> whoami</div>
+      <div><span class="t-key">name</span><span class="t-dim"> : </span><span class="t-val">Bigul Niraula (0xbec000l)</span></div>
+      <div><span class="t-key">role</span><span class="t-dim"> : </span><span class="t-val">Cybersecurity Learner · CTF Player · Security Researcher</span></div>
+      <div><span class="t-key">focus</span><span class="t-dim">: </span><span class="t-val">Web Exploitation · Reverse Engineering · Exploit Development · OSINT</span></div>
+      <div><span class="t-key">ctf</span><span class="t-dim">  : </span><span class="t-val">HackTheBox · PicoCTF · TryHackMe · CTFtime</span></div>
+      <div><span class="t-comment"># "The quieter you become, the more you can hear."</span></div>
+      <div><span class="t-prompt">root@kali</span><span class="t-path">:~$</span> <span class="cursor"></span></div>
+    </div>
+  </div>
+
+  <div class="hero-name"><span class="acc">// </span>Bigul_Niraula(0xbec000l)</div>
+  <div class="hero-role">
+    Cybersecurity Student/Learner<span class="sep">//</span>CTF Player<span class="sep">//</span>Security Researcher
+  </div>
+  <p class="hero-bio">
+    Breaking things to understand how they're built. I hunt vulnerabilities, write exploits,
+    and document discoveries. Active CTF competitor with a focus on web security,
+    binary exploitation, and cryptography.
+  </p>
+  <div class="btns">
+    <a href="#about" class="btn btn-primary">pwd about/</a>
+    <a href="#projects" class="btn btn-outline">vim projects/</a>
+    <a href="#writeups" class="btn btn-outline">cat writeups/</a>
+    <a href="#blog" class="btn btn-outline">ls blog/</a>
+    <a href="#contact" class="btn btn-outline">./contact_me.sh</a>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n">50+</div><div class="stat-l">CTF Solves</div></div>
+    <div class="stat"><div class="stat-n">3</div><div class="stat-l">Writeups</div></div>
+    <div class="stat"><div class="stat-n">7</div><div class="stat-l">Projects</div></div>
+    <div class="stat"><div class="stat-n">ACTIVE</div><div class="stat-l">HTB&&THM</div></div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="sec-header"><span class="sec-num">01.</span><span class="sec-title">about_me</span><div class="sec-line"></div></div>
+  <div class="about-grid">
+    <div class="card">
+      <h4>// skill_set</h4>
+      <span class="stag hot">Web Exploitation</span>
+      <span class="stag hot">CTF</span>
+      <span class="stag hot">Reverse Engineering</span>
+      <span class="stag">Binary Exploitation</span>
+      <span class="stag">Cryptography</span>
+      <span class="stag">OSINT</span>
+      <span class="stag">Network Security</span>
+      <span class="stag">Digital Forensics</span>
+      <span class="stag">Python</span>
+      <span class="stag">Bash</span>
+      <span class="stag">C</span>
+      <span class="stag">SQL</span>
+      <span class="stag">Burp Suite</span>
+      <span class="stag">Ghidra</span>
+      <span class="stag">Wireshark</span>
+      <span class="stag">Nmap</span>
+      <span class="stag">Metasploit</span>
+    </div>
+    <div class="card">
+      <h4>// certs &amp; platforms</h4>
+      <div class="cert"><div class="cdot"></div><span class="cname">eJPT — eLearnSecurity</span><span class="cbadge prog">preparing</span></div>
+      <div class="cert"><div class="cdot"></div><span class="cname">CompTIA Security+</span><span class="cbadge prog">preparing</span></div>
+      <div class="cert"><div class="cdot"></div><span class="cname">TryHackMe</span><span class="cbadge done">active</span></div>
+      <div class="cert"><div class="cdot"></div><span class="cname">HackTheBox</span><span class="cbadge done">active</span></div>
+      <div class="cert"><div class="cdot"></div><span class="cname">PicoCTF</span><span class="cbadge done">active</span></div>
+      <div class="cert"><div class="cdot"></div><span class="cname">OSCP</span><span class="cbadge prog">preparing</span></div>
+    </div>
+    <div class="card span2">
+      <h4>// bio</h4>
+      <p style="font-size:13px;color:var(--text-dim);line-height:1.9;">
+        I'm a cybersecurity student with a deep interest in offensive security. I spend my free time on CTF
+        competitions, building security tools, and writing about vulnerabilities I discover. My research spans
+        web application security, binary exploitation, and cryptographic analysis. I believe in responsible
+        disclosure and open knowledge sharing — this portfolio is my public lab notebook.
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="sec-header"><span class="sec-num">02.</span><span class="sec-title">projects/</span><div class="sec-line"></div></div>
+  <div class="proj-grid">
+
+    <div class="pcard full">
+      <div class="ptop"><span class="picon">featured</span></div>
+      <a href="https://github.com/becool1321/session-hijacking-through-xss-as-well-as-defacement" target="_blank" rel="noopener noreferrer" class="ptitle-link">Session Hijacking via XSS + Defacement</a>
+      <p class="pdesc">Demonstrates a full attack chain using Cross-Site Scripting to steal session cookies and perform page defacement. Covers payload injection, cookie exfiltration, and DOM manipulation techniques.</p>
+      <div class="ptags"><span class="ptag">Python</span><span class="ptag">XSS</span><span class="ptag">Session Hijacking && Defacement</span><span class="ptag">Web Security</span></div>
+    </div>
+
+    <div class="pcard">
+      <div class="ptop"><span class="picon">network</span></div>
+      <a href="https://github.com/becool1321/Port-scanner-using-C-programming" target="_blank" rel="noopener noreferrer" class="ptitle-link">Port Scanner in C</a>
+      <p class="pdesc">Low-level TCP port scanner written in C. Uses raw sockets for fast, efficient scanning of target hosts. Demonstrates systems-level network programming skills.</p>
+      <div class="ptags"><span class="ptag">C</span><span class="ptag">Networking</span><span class="ptag">Sockets</span><span class="ptag">Recon</span></div>
+    </div>
+
+    <div class="pcard">
+      <div class="ptop"><span class="picon">network</span></div>
+      <a href="https://github.com/becool1321/Client-and-server-communication" target="_blank" rel="noopener noreferrer" class="ptitle-link">Client-Server Communication</a>
+      <p class="pdesc">Python implementation of client-server socket communication. Covers TCP handshakes, message passing, and connection handling — foundational for understanding network-level exploits.</p>
+      <div class="ptags"><span class="ptag">Python</span><span class="ptag">Sockets</span><span class="ptag">Networking</span></div>
+    </div>
+
+    <div class="pcard">
+      <div class="ptop"><span class="picon">web</span></div>
+      <a href="https://github.com/becool1321/Web-application-" target="_blank" rel="noopener noreferrer" class="ptitle-link">Web Application</a>
+      <p class="pdesc"> Making of Website for the mobile phone shop with the help of html, css, javascript for frontend and php as well as mysql for backend.</p>
+      <div class="ptags"><span class="ptag">HTML</span><span class="ptag">Web app</span><span class="ptag">php</span></div>
+    </div>
+
+    <div class="pcard">
+      <div class="ptop"><span class="picon">sqli</span></div>
+      <a href="https://github.com/becool1321/Sql-" target="_blank" rel="noopener noreferrer" class="ptitle-link">SQL Basic</a>
+      <p class="pdesc">Hands-on SQL lab for knowing the use of columns, orderby and other things for futher sql injection.</p>
+      <div class="ptags"><span class="ptag">SQL</span><span class="ptag">User</span><span class="ptag">Table</span></div>
+    </div>
+
+    <div class="pcard full">
+      <div class="ptop"><span class="picon">crawler</span></div>
+      <a href="https://github.com/becool1321/Web-Crawling" target="_blank" rel="noopener noreferrer" class="ptitle-link">Web Crawling</a>
+      <p class="pdesc">Python-based web crawler for mapping site structure and extracting links, forms, and hidden endpoints. Useful as a first-stage recon tool before active exploitation attempts.</p>
+      <div class="ptags"><span class="ptag">Python</span><span class="ptag">Web Crawling</span><span class="ptag">OSINT</span><span class="ptag">Recon</span></div>
+    </div>
+
+    <div class="pcard full">
+      <div class="ptop"><span class="picon">recon</span></div>
+      <a href="https://github.com/becool1321/Web-Enumeration" target="_blank" rel="noopener noreferrer" class="ptitle-link">Web Enumeration</a>
+      <p class="pdesc">Programming II semester project — automated web enumeration covering directory brute-forcing, subdomain discovery, and endpoint mapping for recon workflows.</p>
+      <div class="ptags"><span class="ptag">Python</span><span class="ptag">Enumeration</span><span class="ptag">Recon</span></div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- WRITEUPS -->
+<section id="writeups">
+  <div class="sec-header"><span class="sec-num">03.</span><span class="sec-title">writeups/</span><div class="sec-line"></div></div>
+  <div class="wu-list">
+
+    <div class="wu">
+      <span class="diff med">med</span>
+      <div class="wu-body">
+        <div class="wu-meta">TryHackMe · Machine · 2025-06-02</div>
+        <a href="https://medium.com/@becoolniraula/lian-yu-tryhackme-walkthrough-a5cab9c5cb00" target="_blank" rel="noopener noreferrer" class="wu-title-link">Lian_yu — THM Walkthrough</a>
+        <div class="wu-desc">Full walkthrough of the Lian_yu room — enumeration, web exploitation, and privilege escalation to root.</div>
+        <div class="wu-tags">
+          <span class="wu-tag">TryHackMe</span>
+          <span class="wu-tag">Web</span>
+          <span class="wu-tag">PrivEsc</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wu">
+      <span class="diff easy">easy</span>
+      <div class="wu-body">
+        <div class="wu-meta">TryHackMe · Machine · 2025-04-03</div>
+        <a href="https://medium.com/@becoolniraula/walk-through-of-vulnersity-try-hack-me-adcdbc16ef68" target="_blank" rel="noopener noreferrer" class="wu-title-link">Vulnversity — THM Walkthrough</a>
+        <div class="wu-desc">Walkthrough covering Nmap scanning, web application enumeration, file upload bypass, and SUID privilege escalation.</div>
+        <div class="wu-tags">
+          <span class="wu-tag">TryHackMe</span>
+          <span class="wu-tag">File Upload</span>
+          <span class="wu-tag">SUID</span>
+          <span class="wu-tag">PrivEsc</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wu">
+      <span class="diff easy">easy</span>
+      <div class="wu-body">
+        <div class="wu-meta">TryHackMe · Learning · 2025-04-01</div>
+        <a href="https://medium.com/@becoolniraula/walk-through-of-introductory-researching-try-hack-me-thm-8655afdb5d62" target="_blank" rel="noopener noreferrer" class="wu-title-link">Introductory Researching — THM Walkthrough</a>
+        <div class="wu-desc">Walkthrough of the Introductory Researching room covering research methodology, OSINT techniques, and CVE investigation.</div>
+        <div class="wu-tags">
+          <span class="wu-tag">TryHackMe</span>
+          <span class="wu-tag">OSINT</span>
+          <span class="wu-tag">Research</span>
+          <span class="wu-tag">CVE</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wu-coming">
+      <span>$</span> more writeups incoming — currently solving HTB &amp; CTFtime challenges...
+    </div>
+
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- BLOG -->
+<section id="blog">
+  <div class="sec-header"><span class="sec-num">04.</span><span class="sec-title">blog/</span><div class="sec-line"></div></div>
+  <div class="blog-empty">
+    <p><span>$</span> no posts yet</p>
+    <p>Check back soon — posts will appear here once published.</p>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="sec-header"><span class="sec-num">05.</span><span class="sec-title">contact/</span><div class="sec-line"></div></div>
+  <div class="contact-grid">
+    <div class="clinks">
+      <a class="clink" href="https://github.com/becool1321" target="_blank" rel="noopener noreferrer">
+        <span class="clink-icon">github</span><span class="clink-txt">https://github.com/becool1321</span>
+      </a>
+      <a class="clink" href="https://x.com/becool09305879" target="_blank" rel="noopener noreferrer">
+        <span class="clink-icon">twitter</span><span class="clink-txt">https://x.com/becool09305879</span>
+      </a>
+      <a class="clink" href="https://www.linkedin.com/in/bigul-niraula" target="_blank" rel="noopener noreferrer">
+        <span class="clink-icon">linkedin</span><span class="clink-txt">https://www.linkedin.com/in/bigul-niraula</span>
+      </a>
+      <a class="clink" href="https://app.hackthebox.com/users/2493627" target="_blank" rel="noopener noreferrer">
+        <span class="clink-icon">htb</span><span class="clink-txt">https://app.hackthebox.com/users/2493627</span>
+      </a>
+      <a class="clink" href="https://tryhackme.com/p/bec000l" target="_blank" rel="noopener noreferrer">
+        <span class="clink-icon">thm</span><span class="clink-txt">https://tryhackme.com/p/bec000l</span>
+      </a>
+      <div class="cnote">
+        <span class="t-prompt">$</span> open to: bug bounty collabs,<br>
+        CTF team invites, security<br>
+        internships &amp; research roles.
+      </div>
+    </div>
+
+    <div class="cform" id="cform-wrap">
+      <form id="contact-form" action="https://formspree.io/f/xgodkjqa" method="POST">
+        <div class="frow"><label>name</label><input type="text" name="name" placeholder="your_handle or real name" maxlength="100" autocomplete="off" required></div>
+        <div class="frow"><label>email</label><input type="email" name="email" placeholder="you@domain.com" maxlength="200" autocomplete="off" required></div>
+        <div class="frow">
+          <label>subject</label>
+          <select name="subject" required>
+            <option value="">select category...</option>
+            <option>CTF Team Invite</option>
+            <option>Bug Bounty Collaboration</option>
+            <option>Research / Partnership</option>
+            <option>Job / Internship</option>
+            <option>General Inquiry</option>
+          </select>
+        </div>
+        <div class="frow"><label>message</label><textarea name="message" placeholder="// your message here..." maxlength="2000" required></textarea></div>
+        <div class="ferr" id="form-err"></div>
+        <button type="submit" class="fsub" id="form-submit">./send_message.sh</button>
+      </form>
+      <div class="fsuccess" id="fsuccess">
+        <div class="big">✓</div>
+        <div style="font-size:13px;color:var(--text-dim);">Message received.<br>I'll get back to you.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="ft">© 2025 <span>0xbec000l</span> — all rights reserved</span>
+</footer>
+
+<script>
+  // Active nav on scroll
+  const navLinks = document.querySelectorAll('.nav-links a');
+  const sections = document.querySelectorAll('section');
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) cur = s.id; });
+    navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + cur));
+  });
+
+  // Formspree AJAX submission
+  const form = document.getElementById('contact-form');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('form-submit');
+    const errEl = document.getElementById('form-err');
+    btn.disabled = true;
+    btn.textContent = '// sending...';
+    errEl.textContent = '';
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        form.style.display = 'none';
+        document.getElementById('fsuccess').style.display = 'block';
+      } else {
+        errEl.textContent = '> error sending message. please try again.';
+        btn.disabled = false;
+        btn.textContent = './send_message.sh';
+      }
+    } catch {
+      errEl.textContent = '> network error. please try again.';
+      btn.disabled = false;
+      btn.textContent = './send_message.sh';
+    }
+  });
+
+  // Typewriter for terminal on load
+  const lines = document.querySelectorAll('.t-body > div');
+  lines.forEach((line, i) => {
+    line.style.opacity = '0';
+    line.style.transition = 'opacity 0.3s';
+    setTimeout(() => { line.style.opacity = '1'; }, i * 180);
+  });
+</script>
+</body>
+</html>
